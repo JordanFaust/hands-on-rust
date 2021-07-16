@@ -35,7 +35,8 @@ impl State {
 
         if self.frame_time > FRAME_DURATION {
             self.frame_time = 0.0;
-            self.player.gravity_and_move();
+            let forward_velocity = self.score / 10;
+            self.player.gravity_and_move(forward_velocity);
         }
 
         if let Some(VirtualKeyCode::Space) = ctx.key {
@@ -138,12 +139,12 @@ impl Player {
         )
     }
 
-    fn gravity_and_move(&mut self) {
+    fn gravity_and_move(&mut self, forward_velocity: i32) {
         if self.velocity < 2.0 {
             self.velocity += 0.2;
         }
         self.y += self.velocity as i32;
-        self.x += 1;
+        self.x += forward_velocity + 1;
         if self.y < 0 {
             self.y = 0;
         }
