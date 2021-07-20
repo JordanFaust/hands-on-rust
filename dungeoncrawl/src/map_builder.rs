@@ -13,7 +13,7 @@ pub struct MapBuilder {
 
 impl MapBuilder {
     pub fn new(rng: &mut RandomNumberGenerator) -> Self {
-        let mut mb = Self{
+        let mut mb = Self {
             map: Map::new(),
             rooms: Vec::new(),
             player_start: Point::zero(),
@@ -36,7 +36,7 @@ impl MapBuilder {
     /*
      * Given a random generator with a set seed, randomly generate a set
      * of rooms that are not intersecting and create the floors within each room.
-    */
+     */
     fn build_random_rooms(&mut self, rng: &mut RandomNumberGenerator) {
         while self.rooms.len() < NUM_ROOMS {
             // Build the room
@@ -44,7 +44,7 @@ impl MapBuilder {
                 rng.range(1, SCREEN_WIDTH - 10),
                 rng.range(1, SCREEN_HEIGHT - 10),
                 rng.range(2, 10),
-                rng.range(2, 10)
+                rng.range(2, 10),
             );
 
             // Check to see if it overlaps with other rooms
@@ -61,8 +61,10 @@ impl MapBuilder {
             // of generated rooms.
             if !overlap {
                 room.for_each(|position| {
-                    if position.x > 0 && position.x < SCREEN_WIDTH
-                        && position.y > 0 && position.y < SCREEN_HEIGHT
+                    if position.x > 0
+                        && position.x < SCREEN_WIDTH
+                        && position.y > 0
+                        && position.y < SCREEN_HEIGHT
                     {
                         let idx = map_idx(position.x, position.y);
                         self.map.tiles[idx] = TileType::Floor;
@@ -75,10 +77,10 @@ impl MapBuilder {
 
     /*
      * Create a virtical tunnel between two points on a map
-    */
+     */
     fn apply_vertical_tunnel(&mut self, y1: i32, y2: i32, x: i32) {
-        use std::cmp::{min, max};
-        for y in min(y1, y2) ..= max(y1, y2) {
+        use std::cmp::{max, min};
+        for y in min(y1, y2)..=max(y1, y2) {
             if let Some(idx) = self.map.try_idx(Point::new(x, y)) {
                 self.map.tiles[idx as usize] = TileType::Floor
             }
@@ -87,10 +89,10 @@ impl MapBuilder {
 
     /*
      * Create a horizontal tunnel between two points on a map
-    */
+     */
     fn apply_horizontal_tunnel(&mut self, x1: i32, x2: i32, y: i32) {
-        use std::cmp::{min, max};
-        for x in min(x1, x2) ..= max(x1, x2) {
+        use std::cmp::{max, min};
+        for x in min(x1, x2)..=max(x1, x2) {
             if let Some(idx) = self.map.try_idx(Point::new(x, y)) {
                 self.map.tiles[idx as usize] = TileType::Floor;
             }
@@ -115,11 +117,17 @@ impl MapBuilder {
             // Randomly dig the horizontal and then virtical parts of the corridor,
             // or vice versa.
             if rng.range(0, 2) == 1 {
-                log(format!("connecting rooms horizontal then virtical a: {:?} b: {:?}", prev, new));
+                log(format!(
+                    "connecting rooms horizontal then virtical a: {:?} b: {:?}",
+                    prev, new
+                ));
                 self.apply_horizontal_tunnel(prev.x, new.x, prev.y);
                 self.apply_vertical_tunnel(prev.y, new.y, new.x)
             } else {
-                log(format!("connecting rooms virtical then horizontal a: {:?} b: {:?}", prev, new));
+                log(format!(
+                    "connecting rooms virtical then horizontal a: {:?} b: {:?}",
+                    prev, new
+                ));
                 self.apply_vertical_tunnel(prev.y, new.y, prev.x);
                 self.apply_horizontal_tunnel(prev.x, new.x, new.y);
             }

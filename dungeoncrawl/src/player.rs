@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub struct Player {
-    pub position: Point
+    pub position: Point,
 }
 
 impl Player {
@@ -10,7 +10,13 @@ impl Player {
     }
 
     pub fn render(&self, ctx: &mut BTerm) {
-        ctx.set(self.position.x, self.position.y, WHITE, BLACK, to_cp437('@'))
+        ctx.set(
+            self.position.x,
+            self.position.y,
+            WHITE,
+            BLACK,
+            to_cp437('@'),
+        )
     }
 
     pub fn update(&mut self, ctx: &mut BTerm, map: &Map) {
@@ -24,7 +30,7 @@ impl Player {
                 VirtualKeyCode::W => Point::new(0, -1),
                 VirtualKeyCode::Down => Point::new(0, 1),
                 VirtualKeyCode::S => Point::new(0, 1),
-                _ => Point::zero()
+                _ => Point::zero(),
             };
 
             let new_position = self.position + delta;
