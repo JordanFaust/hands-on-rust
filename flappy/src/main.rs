@@ -164,10 +164,20 @@ struct Obstacle {
 impl Obstacle {
     fn new(x: i32, score: i32) -> Self {
         let mut random = RandomNumberGenerator::new();
+        let gap_y = random.range(10, 40);
+        let size = i32::max(6, 20 - score);
+        let half_size = size / 2;
+        let upper_bottom_pipe = gap_y - half_size;
+        let lower_upper_pipe = gap_y + half_size;
+
+        log(format!("size: {} half_size: {} upper_bottom_pipe: {} lower_upper_pipe: {}", size, half_size, upper_bottom_pipe, lower_upper_pipe));
+
         Self {
             x,
-            gap_y: random.range(10, 40),
-            size: i32::max(2, 20 - score)
+            // Location of the gap between the pipes
+            gap_y,
+            // The size of the gap between the pipes
+            size
         }
     }
 
