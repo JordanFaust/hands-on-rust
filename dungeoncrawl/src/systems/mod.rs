@@ -4,6 +4,7 @@ mod collisions;
 mod end_turn;
 mod entity_render;
 mod map_render;
+mod movement;
 mod player_input;
 mod random_move;
 
@@ -22,6 +23,10 @@ pub fn build_input_scheduler() -> Schedule {
 
 pub fn build_player_scheduler() -> Schedule {
     Schedule::builder()
+        // Process any movement intents
+        .add_system(movement::movement_system())
+        // Flush and process any movement
+        .flush()
         // Check for collisions with other entities
         .add_system(collisions::collisions_system())
         // Flush any changes made as a result of a collision
@@ -40,6 +45,10 @@ pub fn build_monster_scheduler() -> Schedule {
         // Add random movement to entities tagged with MovingRandomly
         .add_system(random_move::random_move_system())
         // Flush any changes made as a result of a random movement
+        .flush()
+        // Process any movement intents
+        .add_system(movement::movement_system())
+        // Flush and process any movement
         .flush()
         // Check for collisions with other entities
         .add_system(collisions::collisions_system())

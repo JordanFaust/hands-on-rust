@@ -1,16 +1,18 @@
 use crate::prelude::*;
 
 #[system]
-#[write_component(Point)]
+#[read_component(Point)]
 #[read_component(Player)]
 pub fn player_input(
     ecs: &mut SubWorld,
-    #[resource] map: &Map,
+    commands: &mut CommandBuffer,
     #[resource] key: &Option<VirtualKeyCode>,
-    #[resource] camera: &mut Camera,
-    #[resource] turn_state: &mut TurnState
+    #[resource] turn_state: &mut TurnState,
 ) {
-    if let Some(key) = key {
+    // Query the set of player components and their current Point
+    let mut players = <(Entity, &Point)>::query().filter(component::<Player>());
+
+    if let Some(key) = *key {
         let delta = match key {
             VirtualKeyCode::A => Point::new(-1, 0),
             VirtualKeyCode::Left => Point::new(-1, 0),
@@ -23,22 +25,21 @@ pub fn player_input(
             _ => Point::new(0, 0),
         };
 
-        if delta.x != 0 || delta.y != 0 {
-            // Query the set of player components with write access
-            // to their Point component.
-            let mut players = <&mut Point>::query().filter(component::<Player>());
-
-            // Run the query and iterate over the results
-            players.iter_mut(ecs).for_each(|position| {
-                // Calculate the new destination
-                let destination = *position + delta;
-                // Update the players Point position if it is a valid move
-                if map.can_enter_tile(destination) {
-                    *position = destination;
-                    camera.on_player_move(destination);
-                    *turn_state = TurnState::PlayerTurn;
-                }
-            })
-        }
+        // Run the query and iterate over the results
+        players.iter_mut(ecs).for_each(|(entity, position)| {
+            // Calculate the new destination
+            let destination = *position + delta;
+            // Emit a WantsToMove message with the intended destination
+            // NOTE: Push doesn't work for single component insertions so add an empty component
+            // with the message.
+            commands.push((
+                (),
+                WantsToMove {
+                    entity: *entity,
+                    destination,
+                },
+            ));
+        });
+        *turn_state = TurnState::PlayerTurn;
     }
 }
