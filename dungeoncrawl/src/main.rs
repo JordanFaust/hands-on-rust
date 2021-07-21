@@ -36,8 +36,18 @@ impl State {
         let mut resources = Resources::default();
         let mut rng = RandomNumberGenerator::new();
         let map_builder = MapBuilder::new(&mut rng);
+        // Spawn the player within the rendered map
         spawn_player(&mut ecs, map_builder.player_start);
+        // Spawn an enemy in each room other then the first room
+        map_builder
+            .rooms
+            .iter()
+            .skip(1)
+            .map(|room| room.center())
+            .for_each(|position| spawn_monster(&mut ecs, &mut rng, position));
+        // Add the map as a resource
         resources.insert(map_builder.map);
+        // Add the camera as a resource
         resources.insert(Camera::new(map_builder.player_start));
         Self {
             ecs,
