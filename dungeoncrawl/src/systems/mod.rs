@@ -8,6 +8,7 @@ mod map_render;
 mod movement;
 mod player_input;
 mod random_move;
+mod tooltips;
 
 pub fn build_input_scheduler() -> Schedule {
     Schedule::builder()
@@ -21,6 +22,8 @@ pub fn build_input_scheduler() -> Schedule {
         .add_system(entity_render::entity_render_system())
         // Render the player HUD
         .add_system(hud::hud_system())
+        // Render the tooltips
+        .add_system(tooltips::tooltips_system())
         .build()
 }
 
@@ -40,6 +43,8 @@ pub fn build_player_scheduler() -> Schedule {
         .add_system(entity_render::entity_render_system())
         // Render the player HUD
         .add_system(hud::hud_system())
+        // Render the tooltips
+        .add_system(tooltips::tooltips_system())
         // Call the end turn system to handle turn state transition
         .add_system(end_turn::end_turn_system())
         .build()
@@ -65,6 +70,8 @@ pub fn build_monster_scheduler() -> Schedule {
         .add_system(entity_render::entity_render_system())
         // Render the player HUD
         .add_system(hud::hud_system())
+        // Render the tooltips
+        .add_system(tooltips::tooltips_system())
         // Call the end turn system to handle turn state transition
         .add_system(end_turn::end_turn_system())
         .build()

@@ -80,6 +80,11 @@ impl GameState for State {
         // available to any system. This replaces the previous keyboard state
         // from the last tick.
         self.resources.insert(ctx.key);
+        // Add the current moust position as a resource.
+        // Set the active console to the base layer so coordinates line up with the appropriate
+        // layer.
+        ctx.set_active_console(0);
+        self.resources.insert(Point::from_tuple(ctx.mouse_pos()));
         // Execute the systems for the current state
         let current_state = self.resources.get::<TurnState>().unwrap().clone();
         match current_state {
