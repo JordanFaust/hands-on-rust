@@ -70,8 +70,11 @@ impl GameState for State {
         // Clear base layer
         ctx.set_active_console(0);
         ctx.cls();
-        // Clear layer 1
+        // Clear Entity Layer
         ctx.set_active_console(1);
+        ctx.cls();
+        // Clear HUD Layer
+        ctx.set_active_console(2);
         ctx.cls();
         // Add the keyboard state as a resource. This makes the keyboard state
         // available to any system. This replaces the previous keyboard state
@@ -108,10 +111,17 @@ fn main() -> BError {
         // The font file to load the the dimensions of each character. Usually the same as
         // tile dimentions.
         .with_font("dungeonfont.png", 32, 32)
+        // The font used for the HUD
+        .with_font("terminal8x8.png", 8, 8)
         // Add a console using the dimension specified with the named tile graphics file
+        // Base Layer
         .with_simple_console(DISPLAY_WIDTH, DISPLAY_HEIGHT, "dungeonfont.png")
         // Add a second console with no background so transparency shows through
+        // Entity Layer
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, "dungeonfont.png")
+        // Add a third console with no background so transparency shows through
+        // HUD Layer
+        .with_simple_console_no_bg(SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, "terminal8x8.png")
         .build()?;
 
     main_loop(context, State::new())
