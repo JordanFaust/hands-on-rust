@@ -1,6 +1,5 @@
 use crate::prelude::*;
 
-mod collisions;
 mod end_turn;
 mod entity_render;
 mod hud;
@@ -33,10 +32,6 @@ pub fn build_player_scheduler() -> Schedule {
         .add_system(movement::movement_system())
         // Flush and process any movement
         .flush()
-        // Check for collisions with other entities
-        .add_system(collisions::collisions_system())
-        // Flush any changes made as a result of a collision
-        .flush()
         // Render the map after any collisions
         .add_system(map_render::map_render_system())
         // Render the entities ontop of the map
@@ -59,10 +54,6 @@ pub fn build_monster_scheduler() -> Schedule {
         // Process any movement intents
         .add_system(movement::movement_system())
         // Flush and process any movement
-        .flush()
-        // Check for collisions with other entities
-        .add_system(collisions::collisions_system())
-        // Flush any changes made as a result of a collision
         .flush()
         // Render the map after any collisions
         .add_system(map_render::map_render_system())
