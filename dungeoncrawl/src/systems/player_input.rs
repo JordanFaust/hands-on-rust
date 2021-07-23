@@ -3,6 +3,8 @@ use crate::prelude::*;
 #[system]
 #[read_component(Point)]
 #[read_component(Player)]
+#[read_component(Enemy)]
+#[write_component(Health)]
 pub fn player_input(
     ecs: &mut SubWorld,
     commands: &mut CommandBuffer,
@@ -33,8 +35,11 @@ pub fn player_input(
 
         let mut enemies = <(Entity, &Point)>::query().filter(component::<Enemy>());
 
+        let mut did_something = false;
         // If the player has moved check to see if they are attacking an enemy
         if delta.x != 0 || delta.y != 0 {
+            // Track if the player moved or stayed in place
+            did_something = true;
             // Filter enemies to entities in the same position as the player just moved.
             // If an entity is in the same position send a message of intent for attacking.
             let mut hit_something = false;
@@ -66,6 +71,15 @@ pub fn player_input(
                         destination,
                     },
                 ));
+            }
+        }
+
+        // If the player didn't move or attack
+        if !did_something {
+            if let Ok(mut health) = ecs.entry_mut(player_entity).unwrap().get_component_mut::<Health>()
+            {
+                health.current = i32::min(health.max, health.current + 1);
+                log(format!("Player healed current: {}", health.current));
             }
         }
 
