@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+mod combat;
 mod end_turn;
 mod entity_render;
 mod hud;
@@ -28,6 +29,8 @@ pub fn build_input_scheduler() -> Schedule {
 
 pub fn build_player_scheduler() -> Schedule {
     Schedule::builder()
+        // Process Combat Messages (Player has already sent movement and attacking intent)
+        .add_system(combat::combat_system())
         // Process any movement intents
         .add_system(movement::movement_system())
         // Flush and process any movement
@@ -49,6 +52,8 @@ pub fn build_monster_scheduler() -> Schedule {
     Schedule::builder()
         // Add random movement to entities tagged with MovingRandomly
         .add_system(random_move::random_move_system())
+        // Process Combat Messages (after random movement from monsters)
+        .add_system(combat::combat_system())
         // Flush any changes made as a result of a random movement
         .flush()
         // Process any movement intents
