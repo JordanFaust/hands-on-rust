@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+mod chasing;
 mod combat;
 mod end_turn;
 mod entity_render;
@@ -52,6 +53,8 @@ pub fn build_monster_scheduler() -> Schedule {
     Schedule::builder()
         // Add random movement to entities tagged with MovingRandomly
         .add_system(random_move::random_move_system())
+        // Add pathfinding to monsters
+        .add_system(chasing::chasing_system())
         // Process Combat Messages (after random movement from monsters)
         .add_system(combat::combat_system())
         // Flush any changes made as a result of a random movement

@@ -76,7 +76,10 @@ pub fn player_input(
 
         // If the player didn't move or attack
         if !did_something {
-            if let Ok(mut health) = ecs.entry_mut(player_entity).unwrap().get_component_mut::<Health>()
+            if let Ok(mut health) = ecs
+                .entry_mut(player_entity)
+                .unwrap()
+                .get_component_mut::<Health>()
             {
                 health.current = i32::min(health.max, health.current + 1);
                 log(format!("Player healed current: {}", health.current));
