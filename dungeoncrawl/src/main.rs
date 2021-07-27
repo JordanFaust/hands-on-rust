@@ -63,6 +63,40 @@ impl State {
             monster_systems: build_monster_scheduler(),
         }
     }
+
+    fn game_over(&mut self, ctx: &mut BTerm) {
+        ctx.set_active_console(2);
+        ctx.print_color_centered(2, RED, BLACK, "Your quest has ended.");
+        ctx.print_color_centered(4, WHITE, BLACK,
+            "Slain by a monster, you hero's journey has come to a  premature end.");
+        ctx.print_color_centered(5, WHITE, BLACK,
+            "The Amulet of Yala remains unclaimed, and your home town is not saved");
+        ctx.print_color_centered(8, YELLOW, BLACK,
+                                 "Don't worry, you can always try again with a new hero.");
+        ctx.print_color_centered(9, GREEN, BLACK, "Press 1 to play again.");
+
+        if let Some(VirtualKeyCode::Key1) = ctx.key {
+            self.ecs = World::default();
+            self.resources = Resources::default();
+            let mut rng = RandomNumberGenerator::new();
+            let map_builder = MapBuilder::new(&mut rng);
+            // Spawn the player within the rendered map
+            spawn_player(&mut self.ecs, map_builder.player_start);
+            // Spawn an enemy in each room other then the first room
+            map_builder
+                .rooms
+                .iter()
+                .skip(1)
+                .map(|room| room.center())
+                .for_each(|position| spawn_monster(&mut self.ecs, &mut rng, position));
+            // Add the map as a resource
+            self.resources.insert(map_builder.map);
+            // Add the camera as a resource
+            self.resources.insert(Camera::new(map_builder.player_start));
+            // Set the default state the waiting input
+            self.resources.insert(TurnState::AwaitingInput);
+        }
+    }
 }
 
 impl GameState for State {
@@ -97,6 +131,9 @@ impl GameState for State {
             TurnState::MonsterTurn => self
                 .monster_systems
                 .execute(&mut self.ecs, &mut self.resources),
+            TurnState::GameOver => {
+                self.game_over(ctx);
+            }
         }
         // TODO: Render Draw Buffer
         render_draw_buffer(ctx).expect("Render error");
