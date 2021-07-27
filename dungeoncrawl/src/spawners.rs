@@ -38,6 +38,22 @@ pub fn spawn_monster(ecs: &mut World, rng: &mut RandomNumberGenerator, position:
     ));
 }
 
+pub fn spawn_amulet_of_yala(ecs: &mut World, position: Point) {
+    log(format!("spawning amulet at position: {:?}", position));
+    ecs.push((
+        Item,
+        AmuletOfYala,
+        position,
+        Render {
+            color: ColorPair::new(WHITE, BLACK),
+            glyph: to_cp437('|'),
+        },
+        Name {
+            value: "Amulet of Yala".to_string(),
+        },
+    ));
+}
+
 // Return the tuple of information representing a goblin
 pub fn goblin() -> (i32, String, FontCharType) {
     (1, "Goblin".to_string(), to_cp437('g'))

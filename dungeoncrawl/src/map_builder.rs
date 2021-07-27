@@ -9,6 +9,8 @@ pub struct MapBuilder {
     pub rooms: Vec<Rect>,
     // The location at which the player enters the map
     pub player_start: Point,
+    // The location of the Amulet of Yala
+    pub amulet_start: Point,
 }
 
 impl MapBuilder {
@@ -17,14 +19,39 @@ impl MapBuilder {
             map: Map::new(),
             rooms: Vec::new(),
             player_start: Point::zero(),
+            amulet_start: Point::zero(),
         };
 
+        // Mark all tiles in the map as walls
         mb.fill(TileType::Wall);
+        // Randomly build a set of rooms in the map
         log(format!("building rooms count={}", NUM_ROOMS));
         mb.build_random_rooms(rng);
+        // Build corridors connecting the rooms
         log("building corridors");
         mb.build_corridors(rng);
+        // Mark the player start area as the center of the first room
         mb.player_start = mb.rooms[0].center();
+        // Use a Dijkstra Map (Flow Map) to find ther furthest position
+        // from the player starting point.
+        let dijkstra_map = DijkstraMap::new(
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            &vec![mb.map.point2d_to_index(mb.player_start)],
+            &mb.map,
+            1024.0,
+        );
+        const UNREACHABLE: &f32 = &f32::MAX;
+        mb.amulet_start = mb.map.index_to_point2d(
+            dijkstra_map
+                .map
+                .iter()
+                .enumerate()
+                .filter(|(_, distance)| *distance < UNREACHABLE)
+                .max_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+                .unwrap()
+                .0,
+        );
         mb
     }
 

@@ -42,6 +42,8 @@ impl State {
         let map_builder = MapBuilder::new(&mut rng);
         // Spawn the player within the rendered map
         spawn_player(&mut ecs, map_builder.player_start);
+        // Spawn the Amulet of Yala
+        spawn_amulet_of_yala(&mut ecs, map_builder.amulet_start);
         // Spawn an enemy in each room other then the first room
         map_builder
             .rooms
@@ -67,12 +69,24 @@ impl State {
     fn game_over(&mut self, ctx: &mut BTerm) {
         ctx.set_active_console(2);
         ctx.print_color_centered(2, RED, BLACK, "Your quest has ended.");
-        ctx.print_color_centered(4, WHITE, BLACK,
-            "Slain by a monster, you hero's journey has come to a  premature end.");
-        ctx.print_color_centered(5, WHITE, BLACK,
-            "The Amulet of Yala remains unclaimed, and your home town is not saved");
-        ctx.print_color_centered(8, YELLOW, BLACK,
-                                 "Don't worry, you can always try again with a new hero.");
+        ctx.print_color_centered(
+            4,
+            WHITE,
+            BLACK,
+            "Slain by a monster, you hero's journey has come to a  premature end.",
+        );
+        ctx.print_color_centered(
+            5,
+            WHITE,
+            BLACK,
+            "The Amulet of Yala remains unclaimed, and your home town is not saved",
+        );
+        ctx.print_color_centered(
+            8,
+            YELLOW,
+            BLACK,
+            "Don't worry, you can always try again with a new hero.",
+        );
         ctx.print_color_centered(9, GREEN, BLACK, "Press 1 to play again.");
 
         if let Some(VirtualKeyCode::Key1) = ctx.key {
@@ -82,6 +96,8 @@ impl State {
             let map_builder = MapBuilder::new(&mut rng);
             // Spawn the player within the rendered map
             spawn_player(&mut self.ecs, map_builder.player_start);
+            // Spawn the Amulet of Yala
+            spawn_amulet_of_yala(&mut self.ecs, map_builder.amulet_start);
             // Spawn an enemy in each room other then the first room
             map_builder
                 .rooms

@@ -10,12 +10,12 @@ pub fn end_turn(ecs: &SubWorld, #[resource] turn_state: &mut TurnState) {
         TurnState::AwaitingInput => return,
         TurnState::PlayerTurn => TurnState::MonsterTurn,
         TurnState::MonsterTurn => TurnState::AwaitingInput,
-        _ => current_state
+        _ => current_state,
     };
 
     // If the players health has dropped to zero set the state to game over
     player_hp.iter(ecs).for_each(|hp| {
-        if  hp.current < 1 {
+        if hp.current < 1 {
             new_state = TurnState::GameOver;
         }
     });

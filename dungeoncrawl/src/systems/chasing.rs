@@ -19,27 +19,19 @@ pub fn chasing(ecs: &SubWorld, commands: &mut CommandBuffer, #[resource] map: &M
 
     // Generate a flow map to use to hunt a player
     let search_targets = vec![player_idx];
-    let dijkstra_map = DijkstraMap::new(
-        SCREEN_WIDTH,
-        SCREEN_HEIGHT,
-        &search_targets,
-        map,
-        1024.0
-    );
+    let dijkstra_map = DijkstraMap::new(SCREEN_WIDTH, SCREEN_HEIGHT, &search_targets, map, 1024.0);
 
     movers.iter(ecs).for_each(|(entity, position, _)| {
         let idx = map_idx(position.x, position.y);
         if let Some(destination) = DijkstraMap::find_lowest_exit(&dijkstra_map, idx, map) {
-
             // Calculate the distance and determine the move the monster should make. Prevent the
             // monster attacking diagonaly by checking the calculated distance
             let distance = DistanceAlg::Pythagoras.distance2d(*position, *player_position);
-            let destination = if distance  > 1.2 {
+            let destination = if distance > 1.2 {
                 map.index_to_point2d(destination)
             } else {
                 *player_position
             };
-
 
             let mut attacked = false;
             positions
