@@ -1,7 +1,13 @@
 use crate::prelude::*;
 
 #[system]
-pub fn map_render(#[resource] map: &Map, #[resource] camera: &Camera) {
+#[read_component(FieldOfView)]
+#[read_component(Player)]
+pub fn map_render(ecs: &SubWorld, #[resource] map: &Map, #[resource] camera: &Camera) {
+    // Get the field of view for the player
+    let mut fov = <(&FieldOfView)>::query().filter(component::<Player>());
+    let player_fov = fov.iter(ecs).nth(0).unwrap();
+
     // Create new draw batch. This will batch deferred rendering commands
     let mut draw_batch = DrawBatch::new();
     // Set the console targe to the base layer (Layer 0)
@@ -14,7 +20,9 @@ pub fn map_render(#[resource] map: &Map, #[resource] camera: &Camera) {
             let point = Point::new(x, y);
             // The edges of the current viewport
             let offset = Point::new(camera.left_x, camera.top_y);
-            if map.in_bounds(point) {
+            // Check to see if the point on the map is in bounds and within the
+            // field of view of the player
+            if map.in_bounds(point) && player_fov.visible_tiles.contains(&point) {
                 // Get the glyph for the current point
                 let idx = map_idx(x, y);
                 let glyph = match map.tiles[idx] {

@@ -121,8 +121,18 @@ impl State {
     fn victory(&mut self, ctx: &mut BTerm) {
         ctx.set_active_console(2);
         ctx.print_color_centered(2, GREEN, BLACK, "You have won!");
-        ctx.print_color_centered(4, WHITE, BLACK, "You put on the Amulet of Yala and feel its power course through your veins.");
-        ctx.print_color_centered(5, WHITE, BLACK, "Your town is saved, and you can return to your normal life");
+        ctx.print_color_centered(
+            4,
+            WHITE,
+            BLACK,
+            "You put on the Amulet of Yala and feel its power course through your veins.",
+        );
+        ctx.print_color_centered(
+            5,
+            WHITE,
+            BLACK,
+            "Your town is saved, and you can return to your normal life",
+        );
         ctx.print_color_centered(7, GREEN, BLACK, "Press 1 to play again.");
         if let Some(VirtualKeyCode::Key1) = ctx.key {
             self.reset_game_state();
@@ -170,7 +180,6 @@ impl GameState for State {
     }
 }
 
-
 fn main() -> BError {
     let context = BTermBuilder::new()
         .with_title("Dungeon Crawler")
@@ -181,7 +190,6 @@ fn main() -> BError {
         .with_tile_dimensions(32, 32)
         // The directory in which assets and graphics are placed
         .with_resource_path("resources/")
-
         // The font file to load the the dimensions of each character. Usually the same as
         // tile dimentions.
         .with_font("dungeonfont.png", 32, 32)

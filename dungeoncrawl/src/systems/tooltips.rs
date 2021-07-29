@@ -4,9 +4,13 @@ use crate::prelude::*;
 #[read_component(Point)]
 #[read_component(Name)]
 #[read_component(Health)]
+#[read_component(FieldOfView)]
+#[read_component(Player)]
 pub fn tooltips(ecs: &SubWorld, #[resource] mouse_pos: &Point, #[resource] camera: &Camera) {
     // Get the list of entities with a point and name component
     let mut positions = <(Entity, &Point, &Name)>::query();
+    let mut fov = <&FieldOfView>::query().filter(component::<Player>());
+    let player_fov = fov.iter(ecs).nth(0).unwrap();
 
     // Calculate the map position
     let offset = Point::new(camera.left_x, camera.top_y);
@@ -19,7 +23,9 @@ pub fn tooltips(ecs: &SubWorld, #[resource] mouse_pos: &Point, #[resource] camer
     // of the entity. If the health is not available display the name.
     positions
         .iter(ecs)
-        .filter(|(_, position, _)| **position == map_position)
+        .filter(|(_, position, _)|
+                **position == map_position && player_fov.visible_tiles.contains(&position)
+        )
         .for_each(|(entity, _, name)| {
             // The mouse position is in coordinates that align with the mosters layer.
             // The tooltip layer is four times larger - multiply the mouse position by four
