@@ -23,9 +23,9 @@ pub fn tooltips(ecs: &SubWorld, #[resource] mouse_pos: &Point, #[resource] camer
     // of the entity. If the health is not available display the name.
     positions
         .iter(ecs)
-        .filter(|(_, position, _)|
-                **position == map_position && player_fov.visible_tiles.contains(&position)
-        )
+        .filter(|(_, position, _)| {
+            **position == map_position && player_fov.visible_tiles.contains(&position)
+        })
         .for_each(|(entity, _, name)| {
             // The mouse position is in coordinates that align with the mosters layer.
             // The tooltip layer is four times larger - multiply the mouse position by four

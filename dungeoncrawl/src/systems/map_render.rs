@@ -21,16 +21,25 @@ pub fn map_render(ecs: &SubWorld, #[resource] map: &Map, #[resource] camera: &Ca
             // The edges of the current viewport
             let offset = Point::new(camera.left_x, camera.top_y);
             // Check to see if the point on the map is in bounds and within the
-            // field of view of the player
-            if map.in_bounds(point) && player_fov.visible_tiles.contains(&point) {
-                // Get the glyph for the current point
-                let idx = map_idx(x, y);
-                let glyph = match map.tiles[idx] {
-                    TileType::Floor => to_cp437('.'),
-                    TileType::Wall => to_cp437('#'),
+            // field of view of the player or if it has previously been revealed.
+            let idx = map_idx(x, y);
+            let tile_visible = player_fov.visible_tiles.contains(&point)
+                || (idx < 4000 && map.revealed_tiles[idx]);
+            if map.in_bounds(point) && tile_visible {
+                let tint = if player_fov.visible_tiles.contains(&point) {
+                    WHITE
+                } else {
+                    DARK_GRAY
                 };
-                // Set the individual cell glyph for the position
-                draw_batch.set(point - offset, ColorPair::new(WHITE, BLACK), glyph);
+                // Set the individual cell glyph for the position with tint
+                match map.tiles[idx] {
+                    TileType::Floor => {
+                        draw_batch.set(point - offset, ColorPair::new(tint, BLACK), to_cp437('.'))
+                    }
+                    TileType::Wall => {
+                        draw_batch.set(point - offset, ColorPair::new(tint, BLACK), to_cp437('#'))
+                    }
+                };
             }
         }
     }

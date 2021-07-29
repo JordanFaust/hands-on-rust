@@ -9,7 +9,7 @@ use crate::prelude::*;
 pub fn movement(
     entity: &Entity,
     message: &WantsToMove,
-    #[resource] map: &Map,
+    #[resource] map: &mut Map,
     #[resource] camera: &mut Camera,
     ecs: &mut SubWorld,
     commands: &mut CommandBuffer,
@@ -23,12 +23,16 @@ pub fn movement(
             // If the entity has a field of view mark it as dirty
             if let Ok(fov) = entry.get_component::<FieldOfView>() {
                 commands.add_component(message.entity, fov.clone_dirty());
-            }
 
-            // Check to see if the entity is a Player component
-            if entry.get_component::<Player>().is_ok() {
-                // The entity exists and is a player, update the players camera information
-                camera.on_player_move(message.destination)
+                // Check to see if the entity is a Player component
+                if entry.get_component::<Player>().is_ok() {
+                    // The entity exists and is a player, update the players camera information
+                    camera.on_player_move(message.destination);
+                    // Use the field of view to update the set of revealed tiles
+                    fov.visible_tiles.iter().for_each(|position| {
+                        map.revealed_tiles[map_idx(position.x, position.y)] = true;
+                    });
+                }
             }
         }
     }

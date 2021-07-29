@@ -30,6 +30,12 @@ pub struct Map {
     let x = index / WIDTH; <-- Always rounds *DOWN*
     */
     pub tiles: Vec<TileType>,
+
+    /*
+     * Represents the set of revealed tiles using the same striding indexing as the set of tiles
+     * for the map.
+     */
+    pub revealed_tiles: Vec<bool>,
 }
 
 pub fn map_idx(x: i32, y: i32) -> usize {
@@ -40,6 +46,7 @@ impl Map {
     pub fn new() -> Self {
         Self {
             tiles: vec![TileType::Floor; NUM_TILES],
+            revealed_tiles: vec![false; NUM_TILES],
         }
     }
 
