@@ -3,11 +3,12 @@ use crate::prelude::*;
 #[system]
 #[read_component(Point)]
 #[read_component(ChasingPlayer)]
+#[read_component(FieldOfView)]
 #[read_component(Health)]
 #[read_component(Player)]
 pub fn chasing(ecs: &SubWorld, commands: &mut CommandBuffer, #[resource] map: &Map) {
-    // Get entities with a point that are chasing the player
-    let mut movers = <(Entity, &Point, &ChasingPlayer)>::query();
+    // Get entities with a point that are chasing the player along with the entities fov
+    let mut movers = <(Entity, &Point, &ChasingPlayer, &FieldOfView)>::query();
     // Get the positions of entities with health on the map
     let mut positions = <(Entity, &Point, &Health)>::query();
     // Get the position of the Player
@@ -21,7 +22,13 @@ pub fn chasing(ecs: &SubWorld, commands: &mut CommandBuffer, #[resource] map: &M
     let search_targets = vec![player_idx];
     let dijkstra_map = DijkstraMap::new(SCREEN_WIDTH, SCREEN_HEIGHT, &search_targets, map, 1024.0);
 
-    movers.iter(ecs).for_each(|(entity, position, _)| {
+    movers.iter(ecs).for_each(|(entity, position, _, fov)| {
+        // Only attempt to chase the player if the player is within the field of view
+        // of the entity
+        if !fov.visible_tiles.contains(&player_position) {
+            return;
+        }
+
         let idx = map_idx(position.x, position.y);
         if let Some(destination) = DijkstraMap::find_lowest_exit(&dijkstra_map, idx, map) {
             // Calculate the distance and determine the move the monster should make. Prevent the
